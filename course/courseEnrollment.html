@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Dashboard | LMS-Learning Made Simple</title>
+    <title>Course Enrollment | LMS-Learning Made Simple</title>
     <!-- Including Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
     rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
@@ -12,7 +12,7 @@
 <body >
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="/api/teacher/dashboard">LMS-Learning Made Simple</a>
+          <a class="navbar-brand" href="/api/student/dashboard">LMS-Learning Made Simple</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -25,8 +25,11 @@
                       </div>
                   </li>
                   <li class="nav-item my-2 mx-3">
-                      <a class="nav-link " aria-current="page" href="/api/teacher/profile">Profile</a>
+                      <a class="nav-link " aria-current="page" href="/api/student/profile">Profile</a>
                     </li>
+                    <li class="nav-item my-2 mx-2">
+                        <a class="nav-link " aria-current="page" href="/api/student/dashboard">Dashboard</a>
+                      </li>
                     <li class="nav-item my-2">
                         <button type="button" class="btn btn-secondary" onClick="logout()">Logout</button>
                     </li>
@@ -36,9 +39,7 @@
         </div>
       </nav>
       <div class="mx-2 my-3">
-        <h1 class="my-3">Current Courses</h1>
-        <button class="btn btn-primary mx-1" onClick="createCourse()" type="button">Create Course</button>
-        <button class="btn btn-primary" onClick ="takeCourse()" type="button">Take another Course</button>
+        <h1 class="my-3">Available Courses</h1>
         <br>
         <div id="courses">
           <!-- Filled by the listCourses() function written inside script tag -->
@@ -52,27 +53,12 @@
     crossorigin="anonymous">
     </script>
     <script>
-      const teacherID = localStorage.getItem("teacherID");
-      let deptID;
-      async function getDeptID(){
-        const teacherResp = await fetch(`/api/teacher/${teacherID}`);
-        const teacherData = await teacherResp.json();
-        deptID = teacherData[0].DEPT_ID;
-        // storing dept id for convenience
-        localStorage.setItem("deptID",deptID);
-      }
-      getDeptID();
-
+      const studentID = localStorage.getItem("studentID");
+      
       function logout() {
           alert("You have been logged out");
           localStorage.clear();
-          window.location = "/api/login/teacher";
-      }
-      function createCourse(){
-        window.location = `/api/createCourse`;
-      }
-      function takeCourse(){
-        window.location = `/api/takeCourse`;
+          window.location = "/api/login/student";
       }
 
       async function postData(url = "", data = {}) {
@@ -92,11 +78,11 @@
       async function listCourses(courseID){
           let resp;
           if(!courseID){
-              resp = await fetch(`/api/teacher/${teacherID}/courses`);
+              resp = await fetch(`/api/availableCourses/${studentID}`);
           }
           else{
               // alert(courseID);
-              resp = await fetch(`/api/teacher/${teacherID}/courses/${courseID}`);
+              resp = await fetch(`/api/availableCourses/${studentID}/${courseID}`);
           }
           const data = await resp.json();
           // We are retrieving the div tag, inside of which we will write the HTML code
@@ -112,10 +98,12 @@
                 `<div class="card my-2" >
                   <div class="card-body card-body d-flex justify-content-between align-items-center">
                     <div>
-                      <a href="/api/teacher/course?course_id=${x[keys[0]]}"><h4 class="card-title">${x[keys[0]]}</h4></a>
-                      <h5 class="card-subtitle mb-2 text-body-secondary">${x[keys[1]]}</h5>
+                        <h4 class="card-title">${x[keys[0]]}</h4>
+                        <h5 class="card-subtitle mb-2 text-body-secondary">${x[keys[1]]}</h5>
+                        <strong>Instructor:</strong>
+                      <a href="/api/teacher/profile?teacher_id=${x[keys[2]]}" class="card-link">${x[keys[3]]}</a>
                     </div>
-                    <button class="btn btn-danger text-wrap" data-course-id="${x[keys[0]]}">Drop Course</button>
+                    <button class="btn btn-success text-wrap" data-course-id="${x[keys[0]]}">Take Course</button>
                   </div>
                 </div>`;    
             });
@@ -124,16 +112,16 @@
 
           // Attach a single click event listener to courses_div
         courses_div.addEventListener('click', async function(event) {
-          const target = event.target;
+            const target = event.target;
           
-          // Check if the clicked element is a button with the desired class
-          if (target && target.classList.contains('btn-danger')) {
-            // Extract course ID from the data attribute
-            const courseID = target.getAttribute('data-course-id');
-            
-            // Call the dropCourse function with the course ID
-            await dropCourse(courseID);
-          }
+            // Check if the clicked element is a button with the desired class
+            if (target && target.classList.contains('btn-success')) {
+                // Extract course ID from the data attribute
+                const courseID = target.getAttribute('data-course-id');
+                
+                // Call the dropCourse function with the course ID
+                await takeCourse(courseID);
+            }
         });
       }
       listCourses();
@@ -145,8 +133,9 @@
           listCourses(courseID);
         }
       }
-      async function dropCourse(courseID){ 
-        const data = await postData(`/api/teacher/dropCourse/${courseID}`);
+
+      async function takeCourse(courseID){
+        const data = await postData(`/api/student/${studentID}/enrollCourse/${courseID}`);
         alert(data.message);
         window.location.reload();
       }
