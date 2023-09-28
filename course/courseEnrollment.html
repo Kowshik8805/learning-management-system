@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Enrollment | LMS-Learning Made Simple</title>
+    <!-- Including Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+    crossorigin="anonymous">
+</head>
+<body >
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/api/student/dashboard">LMS-Learning Made Simple</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                  <li class = "nav-item mx-4 my-2">
+                      <div class="d-flex" role="search">
+                          <input id="courseid" class="form-control me-2" type="search" placeholder="Search Course" aria-label="Search">
+                          <button class="btn btn-success" type="submit" onclick="listSingleCourse()">Search</button>
+                      </div>
+                  </li>
+                  <li class="nav-item my-2 mx-3">
+                      <a class="nav-link " aria-current="page" href="/api/student/profile">Profile</a>
+                    </li>
+                    <li class="nav-item my-2 mx-2">
+                        <a class="nav-link " aria-current="page" href="/api/student/dashboard">Dashboard</a>
+                      </li>
+                    <li class="nav-item my-2">
+                        <button type="button" class="btn btn-secondary" onClick="logout()">Logout</button>
+                    </li>
+                </ul>
+                
+          </div>
+        </div>
+      </nav>
+      <div class="mx-2 my-3">
+        <h1 class="my-3">Available Courses</h1>
+        <br>
+        <div id="courses">
+          <!-- Filled by the listCourses() function written inside script tag -->
+        </div>
+        
+      </div>
+    
+    <!-- Including Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" 
+    crossorigin="anonymous">
+    </script>
+    <script>
+      const studentID = localStorage.getItem("studentID");
+      
+      function logout() {
+          alert("You have been logged out");
+          localStorage.clear();
+          window.location = "/api/login/student";
+      }
+
+      async function postData(url = "", data = {}) {
+          // Default options are marked with *
+          const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+          });
+          let rdata = await response.json();
+          return rdata;
+      };
+
+      async function listCourses(courseID){
+          let resp;
+          if(!courseID){
+              resp = await fetch(`/api/availableCourses/${studentID}`);
+          }
+          else{
+              // alert(courseID);
+              resp = await fetch(`/api/availableCourses/${studentID}/${courseID}`);
+          }
+          const data = await resp.json();
+          // We are retrieving the div tag, inside of which we will write the HTML code
+          const courses_div = document.getElementById("courses");
+          let html = "";
+          if(!data || data.length === 0){
+            html += `<p>Not Found</p>`;
+          }
+          else{
+            const keys = Object.keys(data[0]);
+            data.forEach((x)=>{
+                html += 
+                `<div class="card my-2" >
+                  <div class="card-body card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title">${x[keys[0]]}</h4>
+                        <h5 class="card-subtitle mb-2 text-body-secondary">${x[keys[1]]}</h5>
+                        <strong>Instructor:</strong>
+                      <a href="/api/teacher/profile?teacher_id=${x[keys[2]]}" class="card-link">${x[keys[3]]}</a>
+                    </div>
+                    <button class="btn btn-success text-wrap" data-course-id="${x[keys[0]]}">Take Course</button>
+                  </div>
+                </div>`;    
+            });
+          }
+          courses_div.innerHTML = html;
+
+          // Attach a single click event listener to courses_div
+        courses_div.addEventListener('click', async function(event) {
+            const target = event.target;
+          
+            // Check if the clicked element is a button with the desired class
+            if (target && target.classList.contains('btn-success')) {
+                // Extract course ID from the data attribute
+                const courseID = target.getAttribute('data-course-id');
+                
+                // Call the dropCourse function with the course ID
+                await takeCourse(courseID);
+            }
+        });
+      }
+      listCourses();
+      async function listSingleCourse(){
+        const courseID = document.getElementById("courseid").value;
+        if(!courseID){
+          listCourses();
+        }else{
+          listCourses(courseID);
+        }
+      }
+
+      async function takeCourse(courseID){
+        const data = await postData(`/api/student/${studentID}/enrollCourse/${courseID}`);
+        alert(data.message);
+        window.location.reload();
+      }
+    </script>
+</body>
+</html>

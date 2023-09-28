@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Login | LMS-Learning Made Simple</title>
+    <!-- Including Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+    crossorigin="anonymous">
+</head>
+<body >
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/api">LMS-Learning Made Simple</a>
+        </div>
+      </nav>
+    <div>
+        <div class="container text-center p-3 mb-2 ">
+            <h1 class="my-3 p-5"">Teacher Login</h1>
+            <div>
+                <div class="mb-3">
+                <label for="teacherid" class="form-label">Teacher ID</label>
+                <input type="number" class="form-control" id="teacherid" aria-describedby="idhelp">
+                <div id="idhelp" class="form-text">Eg. 1&lt;dept_id&gt;xxx </div>
+                </div>
+                <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password">
+                </div>
+                <button type="submit" class="btn btn-primary" onClick="login()">Login</button>
+            </div> 
+        </div>
+    </div>
+    
+    <!-- Including Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" 
+    crossorigin="anonymous">
+    </script>
+    <script>
+    async function postData(url = "", data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        let rdata = await response.json();
+        return rdata;
+    };
+    async function login(){
+        const teacherID = document.getElementById("teacherid").value;
+        const password = document.getElementById("password").value;
+        if(!teacherID || !password){
+            console.log("Data de shala!");
+        }
+        console.log(teacherID);
+        console.log(password);
+        // const data = {
+        //     studentID: studentID,
+        //     password: password
+        // };
+        // console.log(data);
+        const response = await postData("/api/login/teacher",{
+            teacherID: teacherID,
+            password: password
+        }); 
+        if(response.success){
+            alert(response.message);
+            localStorage.setItem("teacherID",teacherID);
+            window.location.href = "/api/teacher/dashboard";
+        }
+        else{
+            alert(response.message);
+            localStorage.removeItem("teacherID");
+            document.getElementById("teacherid").value = "";
+            document.getElementById("password").value = "";
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS-Learning Made Simple</title>
+    <!-- Including Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+    crossorigin="anonymous">
+</head>
+<body >
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/api">LMS-Learning Made Simple</a>
+        </div>
+      </nav>
+    <div>
+        <div class="container text-center p-3 mb-2 ">
+            <h1 class="my-5">Welcome</h1>
+            <a href="/api/login/student">
+            <button id ="student_login" type="button" class="btn btn-success btn-lg my-4">Login as Student</button>
+            </a>
+            <br>
+            <a href="/api/login/teacher">
+            <button id = "teacher_login" type="button" class="btn btn-primary btn-lg">Login as Teacher</button>
+            </a>
+            <div class="fw-light my-3">
+                <p>New User?</p> 
+                <a href="/api/signup">
+                <button id ="signup" type="button" class="btn btn-secondary">Sign up</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Including Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" 
+    crossorigin="anonymous">
+    </script>
+</body>
+</html>

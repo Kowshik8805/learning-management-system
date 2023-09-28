@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up | LMS-Learning Made Simple</title>
+    <!-- Including Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+    crossorigin="anonymous">
+</head>
+<body >
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/api">LMS-Learning Made Simple</a>
+        </div>
+      </nav>
+    <div>
+        <div class="container text-center p-3 mb-2 ">
+            <h1 class="my-5">Sign up</h1>
+            <a href="/api/signup/student">
+            <button id ="student_signup" type="button" class="btn btn-success btn-lg my-4">Are you a Student?</button>
+            </a>
+            <br>
+            <a href="/api/signup/teacher">
+            <button id = "teacher_signup" type="button" class="btn btn-primary btn-lg">Are you a Teacher?</button>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Including Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" 
+    crossorigin="anonymous">
+    </script>
+</body>
+</html>

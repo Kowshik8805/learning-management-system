@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Page | LMS-Learning Made Simple</title>
+    <!-- Including Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" 
+    rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" 
+    crossorigin="anonymous">
+</head>
+<body >
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/api/student/dashboard">LMS-Learning Made Simple</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                  <li class = "nav-item mx-4 my-2">
+                      <div class="d-flex" role="search">
+                          <input id="assignmentid" class="form-control me-2" type="search" placeholder="Search Assignment" aria-label="Search">
+                          <button class="btn btn-success" type="submit" onClick="getSingleAssignment()">Search</button>
+                      </div>
+                  </li>
+                  <li class="nav-item my-2 mx-2">
+                      <a class="nav-link " aria-current="page" href="/api/student/profile">Profile</a>
+                    </li>
+                  <li class="nav-item my-2 mx-2">
+                      <a class="nav-link " aria-current="page" href="/api/student/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item my-2">
+                        <button type="button" class="btn btn-secondary" onClick="logout()">Logout</button>
+                    </li>
+                </ul>
+                
+          </div>
+        </div>
+      </nav>
+      <div class="mx-2 my-3">
+        <h1 class="my-3">Course Details</h1>
+        <br>
+        <div id="course_details">
+          <!-- Filled up by the courseDetails function written inside script tag -->
+        </div>
+        
+      </div>
+      <br>
+      <div class="mx-2 my-3">
+        <h2 class="my-3">Assignments</h2>
+        <br>
+        <div id="assignments">
+          <!-- Filled up by the getAssignments function  -->
+        </div>
+      </div>
+    
+    <!-- Including Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" 
+    crossorigin="anonymous">
+    </script>
+    <script>
+      const studentID = localStorage.getItem("studentID");
+      const courseID = window.location.href.split('=')[1];
+      localStorage.setItem("courseID",courseID);
+      function logout() {
+          alert("You have been logged out");
+          localStorage.removeItem("studentID");
+          window.location = "/api/login/student";
+      }
+
+      async function postData(url = "", data = {}) {
+          // Default options are marked with *
+          const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+          });
+          let rdata = await response.json();
+          return rdata;
+      };
+
+      async function courseDetails(){
+        const resp = await fetch(`/api/student/${studentID}/courses/${courseID}`);
+        const data = await resp.json();
+        // We are retrieving the div tag, inside of which we will write the HTML code
+        const courses_div = document.getElementById("course_details");
+        let html = "";
+        if(!data || data.length === 0){
+          html += `<p>Not Found</p>`;
+        }
+        else{
+          const keys = Object.keys(data[0]);
+          data.forEach((x)=>{
+              html += 
+              `<p><strong><u>Course ID:</u></strong> ${x[keys[0]]}</p>
+              <p><strong><u>Course Title:</u></strong> ${x[keys[1]]}</p>
+              <p><strong><u>Instructor:</u></strong>  <a href="/api/teacher/profile?teacher_id=${x[keys[2]]}"> ${x[keys[3]]} </a></p>
+              <p><strong><u>Enrollment Date:</u></strong> ${x[keys[4]]}`;    
+          });
+        }
+        courses_div.innerHTML = html;
+      }
+      courseDetails();
+
+      async function getAssignments(assignmentID){
+        let resp;
+        if(!assignmentID){
+          resp = await fetch(`/api/student/${studentID}/courses/${courseID}/assignments`);
+        }
+        else{
+          resp = await fetch(`/api/student/${studentID}/courses/${courseID}/assignments/${assignmentID}`);
+        }
+        const data = await resp.json();
+        const assignments_div = document.getElementById("assignments");
+        let html = "";
+        if(!data || data.length === 0){
+          html += "<p>No Assignments Found</p>";
+        }
+        else{
+          const keys = Object.keys(data[0]);
+          data.forEach((x)=>{
+            html += 
+            `<div class="card">
+              <div class="card-body">
+                <h5 class="card-title">${x[keys[0]]}</</h5>
+                <h6 class="card-subtitle mb-2 text-body-secondary">${x[keys[1]]}</h6>
+                <p class="card-text"><a href="${x[keys[2]]}" target="_blank">Description</a></p>
+                <p><strong>Deadline: </strong>${x[keys[3]]}</p>
+                <a href="/api/student/submission?assignment_id=${x[keys[0]]}" class="card-link">Submission Portal</a>
+              </div>
+            </div>`;
+          });
+        }
+        assignments_div.innerHTML = html;
+      }
+      getAssignments();
+
+      async function getSingleAssignment(){
+        const assignmentID = document.getElementById("assignmentid").value;
+        if(!assignmentID){
+          getAssignments();
+        }
+        else{
+          getAssignments(assignmentID);
+        }     
+      }
+    </script>
+</body>
+</html>
